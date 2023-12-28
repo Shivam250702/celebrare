@@ -5,19 +5,16 @@ const Iform = ({ task, setTask, history, setHistory }) => {
   const [editorContent, setEditorContent] = useState("");
 
   const handleAdd = (event) => {
-    // Form input validation
     var form = document.querySelector(".needs-validation");
     event.preventDefault();
     event.stopPropagation();
     form.classList.add("was-validated");
 
     if (form.checkValidity()) {
-      // Insert new todo in task state
-      let preState = task !== undefined ? [...task, editorContent] : [editorContent];
+      let preState =
+        task !== undefined ? [...task, editorContent] : [editorContent];
       setTask(preState);
 
-      // Insert new history after insert
-      // Get new index of the todo inserted
       let newIndex = preState.length - 1;
 
       let newHistData =
@@ -25,27 +22,21 @@ const Iform = ({ task, setTask, history, setHistory }) => {
           ? [newIndex]
           : [...history[history.length - 1][0], newIndex];
 
-      // Calculate undo and redo index of the new history
       let undo = history.length - 1;
       let redo = null;
 
-      // Prepare total history--  prev history data + current history data
       let newHist = [newHistData, undo, redo];
       let Hist = [...history, newHist];
 
-      // Set history
       setHistory(Hist);
 
-      // Reset the form
       form.reset();
       form.classList.remove("was-validated");
 
-      // Clear the editor content
       setEditorContent("");
     }
   };
 
-  // Undo method
   const handleUndo = (e) => {
     let prevUndo = history[history.length - 1][1];
     if (prevUndo != undefined) {
@@ -54,12 +45,11 @@ const Iform = ({ task, setTask, history, setHistory }) => {
       let redo = history.length - 1;
       let newHist = [newHistData, undo, redo];
       let Hist = [...history, newHist];
-      // Set history
+
       setHistory(Hist);
     }
   };
 
-  // Redo method
   const handleRedo = (e) => {
     let prevRedo = history[history.length - 1][2];
     if (prevRedo != undefined) {
@@ -68,7 +58,7 @@ const Iform = ({ task, setTask, history, setHistory }) => {
       let redo = history[prevRedo][2];
       let newHist = [newHistData, undo, redo];
       let Hist = [...history, newHist];
-      // Set history
+
       setHistory(Hist);
     }
   };
@@ -88,11 +78,7 @@ const Iform = ({ task, setTask, history, setHistory }) => {
         </div>
 
         <div className="col-2 mt-2">
-          <button
-            className="btn btn-success"
-            type="button" // Make sure it's type "button" to prevent form submission
-            onClick={handleAdd}
-          >
+          <button className="btn btn-success" type="button" onClick={handleAdd}>
             Add
           </button>
         </div>

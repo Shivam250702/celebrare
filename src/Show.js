@@ -1,20 +1,17 @@
-import React from 'react';
+import React from "react";
 
 // Utility function to preserve formatting from HTML content
 const parseHtmlWithFormatting = (html) => {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const doc = new DOMParser().parseFromString(html, "text/html");
   const formattedContent = doc.body.innerHTML;
   return { formattedContent, formatting: doc.body.style.cssText };
 };
 
 const Show = ({ task, setTask, history, setHistory }) => {
-  // Ensure history and history length are defined
   const historyLength = history && history.length ? history.length : 0;
   const data = historyLength > 0 ? history[historyLength - 1][0] : [];
 
-  // delete method
   const handleDelete = (toDoIndex) => {
-    // Ensure history is defined
     if (history) {
       let prevData = history[history.length - 1][0];
 
@@ -23,7 +20,7 @@ const Show = ({ task, setTask, history, setHistory }) => {
       let redo = null;
       let newHist = [newHistData, undo, redo];
       let Hist = [...history, newHist];
-      // set history
+
       setHistory(Hist);
     }
   };
@@ -42,7 +39,9 @@ const Show = ({ task, setTask, history, setHistory }) => {
         {task !== undefined && (
           <>
             {data.map((d) => {
-              const { formattedContent, formatting } = parseHtmlWithFormatting(task[d]);
+              const { formattedContent, formatting } = parseHtmlWithFormatting(
+                task[d]
+              );
               return (
                 <div className="col-12 text-left list py-2 mt-1" key={d}>
                   <button
