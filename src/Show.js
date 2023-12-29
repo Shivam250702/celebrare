@@ -1,4 +1,5 @@
 import React from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 // Utility function to preserve formatting from HTML content
 const parseHtmlWithFormatting = (html) => {
@@ -14,13 +15,34 @@ const Show = ({ task, setTask, history, setHistory }) => {
   const handleDelete = (toDoIndex) => {
     if (history) {
       let prevData = history[history.length - 1][0];
-
       let newHistData = prevData.filter((ind) => ind !== toDoIndex);
       let undo = history.length - 1;
       let redo = null;
       let newHist = [newHistData, undo, redo];
       let Hist = [...history, newHist];
+      setHistory(Hist);
+    }
+  };
 
+  const handleDragEnd = (result) => {
+    if (!result.destination) {
+      return; // dropped outside the list
+    }
+
+    const startIndex = result.source.index;
+    const endIndex = result.destination.index;
+
+    if (startIndex !== endIndex) {
+      // Reorder the items
+      const newOrder = Array.from(data);
+      const [removed] = newOrder.splice(startIndex, 1);
+      newOrder.splice(endIndex, 0, removed);
+
+      // Update state
+      let undo = history.length - 1;
+      let redo = null;
+      let newHist = [newOrder, undo, redo];
+      let Hist = [...history, newHist];
       setHistory(Hist);
     }
   };
@@ -37,28 +59,41 @@ const Show = ({ task, setTask, history, setHistory }) => {
           </div>
         )}
         {task !== undefined && (
-          <>
-            {data.map((d) => {
-              const { formattedContent, formatting } = parseHtmlWithFormatting(
-                task[d]
-              );
-              return (
-                <div className="col-12 text-left list py-2 mt-1" key={d}>
-                  <button
-                    className="btn btn-danger"
-                    onClick={(e) => handleDelete(d)}
-                  >
-                    Delete
-                  </button>
-                  <span
-                    className="pl-5 list-content"
-                    dangerouslySetInnerHTML={{ __html: formattedContent }}
-                    style={{ ...formatting }}
-                  />
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="droppable-list">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  {data.map((d, index) => (
+                    <Draggable key={index} draggableId={index.toString()} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          <div className="col-12 text-left list py-2 mt-1" key={index}>
+                            <button
+                              className="btn btn-danger"
+                              onClick={() => handleDelete(index)}
+                            >
+                              Delete
+                            </button>
+                            <span
+                              className="pl-5 list-content"
+                              dangerouslySetInnerHTML={{
+                                __html: parseHtmlWithFormatting(task[d]).formattedContent,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
                 </div>
-              );
-            })}
-          </>
+              )}
+            </Droppable>
+          </DragDropContext>
         )}
       </div>
     </div>
